@@ -1,0 +1,36 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LoggerService = void 0;
+const common_1 = require("@nestjs/common");
+const winston = require("winston");
+const winston_elasticsearch_1 = require("winston-elasticsearch");
+let LoggerService = class LoggerService {
+    onModuleInit() {
+        const esTransportOpts = {
+            level: 'info',
+            clientOpts: { node: 'http://localhost:9200' },
+            indexPrefix: 'nestjs-logs',
+        };
+        const esTransport = new winston_elasticsearch_1.ElasticsearchTransport(esTransportOpts);
+        this.logger = winston.createLogger({
+            level: 'info',
+            transports: [new winston.transports.Console(), esTransport],
+        });
+    }
+    info(message, meta) {
+        this.logger.info(message, meta);
+    }
+    error(message, meta) {
+        this.logger.error(message, meta);
+    }
+};
+exports.LoggerService = LoggerService;
+exports.LoggerService = LoggerService = __decorate([
+    (0, common_1.Injectable)()
+], LoggerService);
