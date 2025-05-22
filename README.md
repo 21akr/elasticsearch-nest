@@ -28,6 +28,10 @@ npm install
 - Grafana
 - Prometheus
 
+```bash
+docker compose up -d
+```
+
 ### 5. Run the project
 
 - Run the following command to start the project:
