@@ -1,47 +1,35 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as winston from 'winston';
-import {
-  ElasticsearchTransport,
-  LogData,
-  ElasticsearchTransportOptions,
-} from 'winston-elasticsearch';
+import * as net from 'net';
+import * as stream from 'stream';
 
 @Injectable()
 export class LoggerService implements OnModuleInit {
   private logger!: winston.Logger;
 
   onModuleInit() {
-    const esTransportOpts: ElasticsearchTransportOptions = {
-      level: 'info',
-      clientOpts: {
-        node: process.env.ELASTIC_NODE || 'http://localhost:9200',
+    console.log('>> LoggerService initialized');
+    const socket = net.createConnection({ port: 5000, host: 'localhost' });
+
+    const tcpStream = new stream.Writable({
+      write: (chunk: Buffer, _encoding: BufferEncoding, callback) => {
+        socket.write(chunk.toString());
+        callback();
       },
-      indexPrefix: 'nestjs-logs',
-      ensureIndexTemplate: true,
-      transformer: (logData: LogData) => ({
-        '@timestamp': new Date().toISOString(),
-        severity: logData.level,
-        message: logData.message as string,
-        fields: { ...logData?.meta },
-      }),
-    };
+    });
 
     const transports: winston.transport[] = [
       new winston.transports.Console({
-        format: winston.format.combine(
-          winston.format.colorize(),
-          winston.format.timestamp(),
-          winston.format.printf(({ timestamp, level, message }) => {
-            return `[${String(timestamp)}] ${String(level)}: ${String(message)}`;
-          }),
-        ),
+        format: winston.format.simple(),
       }),
-      new ElasticsearchTransport(esTransportOpts),
+      new winston.transports.Stream({
+        stream: tcpStream,
+        format: winston.format.json(),
+      }),
     ];
 
     this.logger = winston.createLogger({
       level: 'info',
-      format: winston.format.json(),
       transports,
     });
   }

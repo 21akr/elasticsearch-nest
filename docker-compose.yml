@@ -1,4 +1,24 @@
 services:
+  logstash:
+    image: logstash:9.0.1
+    container_name: logstash
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
   elasticsearch:
     image: elasticsearch:9.0.1
     container_name: elasticsearch
