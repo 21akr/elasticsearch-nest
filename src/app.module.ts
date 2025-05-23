@@ -15,7 +15,7 @@ import {
     AppService,
 
     makeCounterProvider({
-      name: 'http_requests_total',
+      name: 'http_total_requests',
       help: 'Total number of HTTP requests',
       labelNames: ['method', 'route'],
     }),

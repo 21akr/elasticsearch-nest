@@ -7,7 +7,7 @@ import { InjectMetric } from '@willsoto/nestjs-prometheus';
 export class AppService {
   constructor(
     private readonly logger: LoggerService,
-    @InjectMetric('http_requests_total')
+    @InjectMetric('http_total_requests')
     private readonly requestCounter: Counter<string>,
   ) {}
 
@@ -36,12 +36,6 @@ export class AppService {
 
   triggerError(): string {
     try {
-      this.logger.error('Simulated error occurred', {
-        ...this.logMeta(),
-        error: '(error as Error).message',
-        stack: '(error as Error).stack',
-      });
-      this.requestCounter.inc({ method: 'GET', route: '/error' });
       const result = this.simulateFailure();
       this.requestCounter.inc({ method: 'GET', route: '/error' });
       return `Result is ${result}`;
